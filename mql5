@@ -1,0 +1,83 @@
+
+//+------------------------------------------------------------------+
+//|                                                Fibonacci Dimension MT4                                            |
+//|                                      Developed by Forex Robot Easy Team                                     |
+//|                                               Website: forexroboteasy.com                                         |
+//+------------------------------------------------------------------+
+
+// Global variables
+input int timeFrame1 = PERIOD_D1; // First user-defined timeframe
+input int timeFrame2 = PERIOD_W1; // Second user-defined timeframe
+input color midRangeColor = clrRed; // Default color for mid-range
+
+//+------------------------------------------------------------------+
+//| Custom Indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Calculate Fibonacci levels for both timeframes
+    CalculateFibonacciLevels(timeFrame1);
+    CalculateFibonacciLevels(timeFrame2);
+    
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom Indicator calculation function                             |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime& time[],
+                const double& open[],
+                const double& high[],
+                const double& low[],
+                const double& close[],
+                const long& tick_volume[],
+                const long& volume[],
+                const int& spread[])
+{
+    // Calculate Fibonacci levels for both timeframes
+    CalculateFibonacciLevels(timeFrame1);
+    CalculateFibonacciLevels(timeFrame2);
+    
+    return(rates_total);
+}
+
+//+------------------------------------------------------------------+
+//| Function to calculate Fibonacci levels                           |
+//+------------------------------------------------------------------+
+void CalculateFibonacciLevels(const int timeframe)
+{
+    // Get previous high and low
+    double highPrice = iHigh(Symbol(), timeframe, 1);
+    double lowPrice = iLow(Symbol(), timeframe, 1);
+    
+    // Calculate Fibonacci retracement and expansion levels
+    double fib382 = highPrice + (lowPrice - highPrice) * 0.382;
+    double fib618 = highPrice + (lowPrice - highPrice) * 0.618;
+    double fib100 = highPrice + (lowPrice - highPrice);
+    
+    // Draw Fibonacci levels on the chart
+    ObjectCreate('Fib382', OBJ_HLINE, 0, Time[0], fib382);
+    ObjectCreate('Fib618', OBJ_HLINE, 0, Time[0], fib618);
+    ObjectCreate('Fib100', OBJ_HLINE, 0, Time[0], fib100);
+    
+    // Set color for mid-range level
+    if (timeframe == timeFrame2)
+    {
+        ObjectSet('Fib382', OBJPROP_COLOR, midRangeColor);
+        ObjectSet('Fib618', OBJPROP_COLOR, midRangeColor);
+        ObjectSet('Fib100', OBJPROP_COLOR, midRangeColor);
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Custom Indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Remove Fibonacci levels from the chart
+    ObjectDelete('Fib382');
+    ObjectDelete('Fib618');
+    ObjectDelete('Fib100');
+}
